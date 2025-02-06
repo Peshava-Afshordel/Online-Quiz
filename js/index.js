@@ -19,11 +19,7 @@ const questions = [
     answer: "REACT",
     score: 1.5,
   },
-  {
-    hint: "ابزاری برای مدیریت و نسخه‌بندی کدها",
-    answer: "GIT",
-    score: 0.5,
-  },
+  { hint: "ابزاری برای مدیریت و نسخه‌بندی کدها", answer: "GIT", score: 0.5 },
   {
     hint: "زبان برنامه‌نویسی تایپ‌محور که روی جاوااسکریپت ساخته شده است",
     answer: "TYPESCRIPT",
@@ -34,11 +30,7 @@ const questions = [
     answer: "BOOTSTRAP",
     score: 1,
   },
-  {
-    hint: "فرمت محبوب برای تصاویر وکتوری در وب",
-    answer: "SVG",
-    score: 0.75,
-  },
+  { hint: "فرمت محبوب برای تصاویر وکتوری در وب", answer: "SVG", score: 0.75 },
   {
     hint: "ابزاری برای بسته‌بندی ماژول‌های جاوااسکریپت",
     answer: "WEBPACK",
@@ -52,7 +44,6 @@ const questions = [
 ];
 
 const $ = document;
-
 const inputsContainer = $.querySelector(".inputs");
 const hint = $.querySelector(".hint-word");
 const writtedText = $.querySelector(".user-writted");
@@ -61,43 +52,43 @@ const score = $.querySelector(".score");
 const toastElement = $.querySelector(".toast");
 const procesasBar = $.querySelector(".process");
 const modalScreen = $.querySelector(".modal-screen");
-const modalCard = $.querySelector(".hint-word");
 const modalContent = $.querySelector(".modal-content");
 const submitBtn = $.querySelector(".continue");
-const cancelBtn = $.querySelector("#cancel");
 const tryAgainBtn = $.querySelector("#try-again");
-const toastMessage = $.querySelector(".toast-message");
-const modalIcon = $.querySelector(".modal-icon img");
 const resetBtn = $.querySelector(".reset");
 
 let inputElems;
 let answerdText = "";
 let disabledButton = false;
-let currentInputIndex;
 let currentIndex = 0;
 let userScore = 0;
 let chance = 3;
 let mainQuestion = questions[currentIndex];
 
 const showQuestion = () => {
+  if (currentIndex >= questions.length) {
+    modalScreen.classList.remove("hidden");
+    modalContent.innerText = "پشمام همه رو درست زدی که😧";
+    return;
+  }
   mainQuestion = questions[currentIndex];
-  const wordLength = mainQuestion?.answer.length;
+  const wordLength = mainQuestion.answer.length;
   hint.innerText = mainQuestion.hint;
   guessCounts.innerText = chance;
   createInput(wordLength);
 };
 
 const nextQuestion = () => {
-  if (answerdText === mainQuestion.answer) {
-    if (userScore === 9.5) {
+  if (answerdText.toUpperCase() === mainQuestion.answer.toUpperCase()) {
+    if (currentIndex === questions.length - 1) {
       modalScreen.classList.remove("hidden");
       modalContent.innerText = "پشمام همه رو درست زدی که😧";
-      modalIcon.setAttribute("src", "./public/image/success.png");
+      return;
     }
     currentIndex++;
     userScore += mainQuestion.score;
     score.innerText = userScore;
-
+    chance = 3; // Reset chance
     disabledButton = true;
     disabledButtonHandler();
     clearInputs();
@@ -112,27 +103,25 @@ const nextQuestion = () => {
       "برو جلو خودشه",
       "ماشالله به هوشت",
     ];
-
-    const randomNumber = Math.floor(Math.random() * 9);
-
+    const randomNumber = Math.floor(Math.random() * wordTrueAnswer.length);
     toastHandler(wordTrueAnswer[randomNumber], "success");
     answerdText = "";
   } else {
     chance--;
-    const wordTrueAnswer = [
-      "یه بار دیگه تلاش کن",
-      "این دفعه حتما درست میزنی",
-      "ای بابا",
-      "جواب نادرست است",
-    ];
-
-    const randomNumber = Math.floor(Math.random() * 4);
-
-    toastHandler(wordTrueAnswer[randomNumber], "error");
-    showQuestion();
-    clearInputs();
     if (chance === 0) {
       modalScreen.classList.remove("hidden");
+    } else {
+      const wordTrueAnswer = [
+        "یه بار دیگه تلاش کن",
+        "این دفعه حتما درست میزنی",
+        "ای بابا",
+        "جواب نادرست است",
+      ];
+      const randomNumber = Math.floor(Math.random() * wordTrueAnswer.length);
+      toastHandler(wordTrueAnswer[randomNumber], "error");
+      showQuestion();
+      clearInputs();
+      answerdText = "";
     }
   }
 };
@@ -142,10 +131,7 @@ const createInput = (wordLength) => {
   for (let i = 0; i < wordLength; i++) {
     inputsContainer.insertAdjacentHTML(
       "beforeend",
-      `
-          <input type="text" class="input letter"/>
-        
-      `
+      `<input type="text" class="input letter"/>`
     );
   }
   inputElems = $.querySelectorAll(".input");
@@ -186,13 +172,8 @@ const toastHandler = (text, status) => {
 };
 
 const disabledButtonHandler = () => {
-  if (disabledButton) {
-    submitBtn.classList.add("disabled");
-    submitBtn.disabled = true;
-  } else {
-    submitBtn.classList.remove("disabled");
-    submitBtn.disabled = false;
-  }
+  submitBtn.classList.toggle("disabled", disabledButton);
+  submitBtn.disabled = disabledButton;
 };
 
 const toastProgress = () => {
@@ -227,13 +208,12 @@ const restartGame = () => {
 };
 
 tryAgainBtn.addEventListener("click", restartGame);
-window.addEventListener("load", showQuestion());
-tryAgainBtn.addEventListener("click", restartGame);
 resetBtn.addEventListener("click", restartGame);
 submitBtn.addEventListener("click", nextQuestion);
 window.addEventListener("keyup", (e) => {
-  const { key } = e;
-  if (key === "Enter") {
+  if (e.key === "Enter") {
     nextQuestion();
   }
 });
+
+window.addEventListener("load", showQuestion);
