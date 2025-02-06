@@ -50,7 +50,23 @@ const questions = [
     score: 0.5,
   },
 ];
-
+const wordTrueAnswer = [
+  "نهههه خوشم اومد",
+  "عالی بود",
+  "تبارک االله",
+  "بنازم",
+  "درست زدی کههه",
+  "باریکلا",
+  "صد آفرین",
+  "برو جلو خودشه",
+  "ماشالله به هوشت",
+];
+const wordFalseAnswer = [
+  "یه بار دیگه تلاش کن",
+  "این دفعه حتما درست میزنی",
+  "ای بابا",
+  "جواب نادرست است",
+];
 const $ = document;
 
 const inputsContainer = $.querySelector(".inputs");
@@ -77,11 +93,12 @@ let currentInputIndex;
 let currentIndex = 0;
 let userScore = 0;
 let chance = 3;
+let wordLength;
 let mainQuestion = questions[currentIndex];
 
 const showQuestion = () => {
   mainQuestion = questions[currentIndex];
-  const wordLength = mainQuestion?.answer.length;
+  wordLength = mainQuestion?.answer.length;
   hint.innerText = mainQuestion.hint;
   guessCounts.innerText = chance;
   createInput(wordLength);
@@ -99,38 +116,15 @@ const nextQuestion = () => {
     score.innerText = userScore;
     chance = 3;
     disabledButton = true;
-    disabledButtonHandler();
-    clearInputs();
-    const wordTrueAnswer = [
-      "نهههه خوشم اومد",
-      "عالی بود",
-      "تبارک االله",
-      "بنازم",
-      "درست زدی کههه",
-      "باریکلا",
-      "صد آفرین",
-      "برو جلو خودشه",
-      "ماشالله به هوشت",
-    ];
-
     const randomNumber = Math.floor(Math.random() * 9);
-
+    disabledButtonHandler();
     toastHandler(wordTrueAnswer[randomNumber], "success");
     answerdText = "";
   } else {
     chance--;
-    const wordTrueAnswer = [
-      "یه بار دیگه تلاش کن",
-      "این دفعه حتما درست میزنی",
-      "ای بابا",
-      "جواب نادرست است",
-    ];
-
     const randomNumber = Math.floor(Math.random() * 4);
-
-    toastHandler(wordTrueAnswer[randomNumber], "error");
+    toastHandler(wordFalseAnswer[randomNumber], "error");
     showQuestion();
-    clearInputs();
     answerdText = "";
     if (chance === 0) {
       modalScreen.classList.remove("hidden");
@@ -207,9 +201,10 @@ const toastProgress = () => {
       toastElement.classList.add("hidden");
       showQuestion();
       disabledButtonHandler();
+      clearInputs();
     }
     procesasBar.style.width = `${progressCount}%`;
-  }, 10);
+  }, 30);
 };
 
 const clearInputs = () => {
@@ -229,7 +224,6 @@ const restartGame = () => {
 
 tryAgainBtn.addEventListener("click", restartGame);
 window.addEventListener("load", showQuestion());
-tryAgainBtn.addEventListener("click", restartGame);
 resetBtn.addEventListener("click", restartGame);
 submitBtn.addEventListener("click", nextQuestion);
 window.addEventListener("keyup", (e) => {
